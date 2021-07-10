@@ -1,7 +1,9 @@
 use std::fs::File;
 use std::io::{Read, Write};
 use std::io;
-
+#[macro_use]
+extern crate clap;
+use clap::Arg;
 fn pause() {
     let mut stdin = io::stdin();
     let mut stdout = io::stdout();
@@ -176,7 +178,16 @@ impl RLE {
     }
 }
 fn main() {
-    let mut rle = RLE::new("thing.rle");
+    let cfg = app_from_crate!()
+        .arg(Arg::with_name("file")
+            .required(false)
+            .default_value("thing.rle")
+            .help("the RLE file to execute")
+            .index(1)
+        ).get_matches();
+    let filename = cfg.value_of("file")
+        .expect("No filename found (somehow!)");
+    let mut rle = RLE::new(filename);
     loop {
         rle.do_iteration();
     }
